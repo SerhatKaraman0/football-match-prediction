@@ -1,6 +1,15 @@
 from dataclasses import dataclass
 
 @dataclass
+class DataCollectionArtifact:
+    elo_data_resource_url       : str
+    match_data_resource_url     : str
+    elo_data_update_interval    : str
+    match_data_update_interval  : str
+    match_data_file_path        : str
+    elo_data_file_path          : str
+
+@dataclass
 class DataIngestionArtifact:
     trained_file_path   : str
     test_file_path      : str

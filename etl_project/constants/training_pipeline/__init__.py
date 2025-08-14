@@ -6,6 +6,7 @@ import pandas as pd
 ##################################################################################
 ## Common Constant Variables 
 ##################################################################################
+# TODO: TARGET_COLUMN and FILE NAME will be changed. FILE_NAME might get removed.
 
 SCHEMA_FILE_PATH      = os.path.join("data_schema", "schema.yaml")
 TARGET_COLUMN         = "Result"
@@ -15,6 +16,19 @@ FILE_NAME     :  str  = "phisingData.csv"
 
 TRAIN_FILE_NAME = "train.csv"
 TEST_FILE_NAME  = "test.csv"
+
+##################################################################################
+## Data Collection Constant Variables 
+##################################################################################
+#TODO: ELO and MATCH Data update intervals will be changed with their data type
+
+ELO_DATA_RESOURCE_UR            : str  = "https://raw.githubusercontent.com/xgabora/Club-Football-Match-Data-2000-2025/main/data/EloRatings.csv"
+MATCH_DATA_RESOURCE_URL         : str  = "https://raw.githubusercontent.com/xgabora/Club-Football-Match-Data-2000-2025/main/data/Matches.csv"
+ELO_DATA_UPDATE_INTERVAL        : str  = ""
+MATCH_DATA_UPDATE_INTERVAL      : str  = ""
+DATA_COLLECTION_DIR_NAME        : str  = "data"
+ELO_DATA_FILE_NAME              : str  = "ELO_RATINGS.csv"
+MATCH_DATA_FILE_NAME            : str =  "MATCH_DATA.csv"
 
 ##################################################################################
 ## Data Ingestion Constant Variables 
@@ -41,7 +55,8 @@ DATA_VALIDATION_DRIFT_REPORT_FILE_NAME : str    = "report.yaml"
 ##################################################################################
 ## Data Transformation Constant Variables 
 ##################################################################################
-PREPROCESSING_OBJECT_FILE_NAME = "preprocessing.pkl"
+
+PREPROCESSING_OBJECT_FILE_NAME              : str = "preprocessing.pkl"
 DATA_TRANSFORMATION_DIR_NAME                : str = "data_transformation"
 DATA_TRANSFORMATION_TRANSFORMED_DATA_DIR    : str = "transformed"
 DATA_TRANSFORMATION_TRANSFORMED_OBJECT_DIR  : str = "transformed_object"
@@ -54,6 +69,7 @@ DATA_TRANSFORMATION_IMPUTER_PARAMS          : dict = {
 ##################################################################################
 ## Model Trainer Constant Variables 
 ##################################################################################
+
 MODEL_FILE_NAME                                     : str = "model.pkl"
 MODEL_TRAINER_DIR_NAME                              : str = "model_trainer"
 MODEL_TRAINER_TRAINED_MODEL_DIR                     : str = "trained_model"

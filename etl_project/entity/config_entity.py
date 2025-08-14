@@ -12,7 +12,21 @@ class TrainingPipelineConfig:
         self.model_dir = os.path.join("final_model")
         self.timestamp = timestamp
 
-    
+class DataCollectionConfig:
+    def __init__(self, timestamp=datetime.now()):
+        timestamp = timestamp.strftime("%m_%d_%Y")
+        self.elo_data_resource_url      = training_pipeline.ELO_DATA_RESOURCE_UR
+        self.match_data_resource_url    = training_pipeline.MATCH_DATA_RESOURCE_URL
+        self.elo_data_update_interval   = training_pipeline.ELO_DATA_UPDATE_INTERVAL
+        self.match_data_update_interval = training_pipeline.MATCH_DATA_UPDATE_INTERVAL
+        self.match_data_file_path       = os.path.join(training_pipeline.DATA_COLLECTION_DIR_NAME,
+                                                       timestamp,
+                                                       training_pipeline.MATCH_DATA_FILE_NAME)
+        
+        self.elo_data_file_path         = os.path.join(training_pipeline.DATA_COLLECTION_DIR_NAME,
+                                                       timestamp,
+                                                       training_pipeline.ELO_DATA_FILE_NAME)
+        
 class DataIngestionConfig:
     def __init__(self, training_pipeline_config: TrainingPipelineConfig) -> None:
         self.data_ingestion_dir = os.path.join(

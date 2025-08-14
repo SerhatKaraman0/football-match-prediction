@@ -66,6 +66,7 @@ class DataIngestion:
             logging.info("Exported train and test file paths")
         except Exception as e:
             raise ETLPipelineException(e, sys)
+        
     def initiate_data_ingestion(self):
         try:
             df = self.export_collection_as_df()
