@@ -484,9 +484,9 @@ Configure the following secrets in your GitHub repository (Settings → Secrets 
 ```env
 AWS_ACCESS_KEY_ID=your_aws_access_key_id
 AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
-AWS_REGION=us-east-1
-AWS_ECR_LOGIN_URI=788614365622.dkr.ecr.us-east-1.amazonaws.com/networkssecurity
-ECR_REPOSITORY_NAME=networkssecurity
+AWS_REGION=your-aws-region
+AWS_ECR_LOGIN_URI=your-ecr-login-uri
+ECR_REPOSITORY_NAME=your-ecr-repo-name
 ```
 
 ### Docker Setup on EC2
@@ -518,7 +518,7 @@ The application is deployed on AWS with:
 ```env
 AWS_ACCESS_KEY_ID=your_aws_access_key
 AWS_SECRET_ACCESS_KEY=your_aws_secret_key
-AWS_REGION=us-east-1
+AWS_REGION=your-aws-region
 MONGO_DB_URI=your_mongodb_connection_string
 ```
 
