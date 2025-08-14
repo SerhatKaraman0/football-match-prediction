@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETL Pipeline - ML Prediction Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --shadow-light: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            --shadow-heavy: 0 20px 40px 0 rgba(0, 0, 0, 0.1);
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --bg-overlay: rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-circle:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-circle:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 20%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+
+        .floating-circle:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-heavy);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        }
+
+        .header {
+            background: linear-gradient(135deg, rgba(78, 84, 200, 0.9) 0%, rgba(143, 148, 251, 0.9) 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: headerShine 8s linear infinite;
+        }
+
+        @keyframes headerShine {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            from { text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); }
+            to { text-shadow: 0 4px 20px rgba(255, 255, 255, 0.3); }
+        }
+
+        .header .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        .header .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .content {
+            padding: 50px;
+            background: rgba(255, 255, 255, 0.98);
+            position: relative;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 25px;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 30px;
+            background: var(--primary-gradient);
+            border-radius: 2px;
+        }
+
+        .upload-section {
+            background: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 20px;
+            padding: 40px;
+            border: 2px dashed #cbd5e0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(78, 84, 200, 0.1), transparent);
+            animation: rotate 4s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .upload-section:hover::before {
+            opacity: 1;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .upload-section:hover {
+            border-color: #4e54c8;
+            background: linear-gradient(145deg, #f0f4ff 0%, #e6f3ff 100%);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(78, 84, 200, 0.15);
+        }
+
+        .upload-section.dragover {
+            border-color: #4e54c8;
+            background: linear-gradient(145deg, #e8f0fe 0%, #f0f7ff 100%);
+            transform: scale(1.02);
+            box-shadow: 0 25px 50px rgba(78, 84, 200, 0.2);
+        }
+
+        .upload-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: #4e54c8;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .file-input-container {
+            position: relative;
+            display: inline-block;
+            margin: 20px 0;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-input-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 35px;
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            font-size: 1.1rem;
+            border: none;
+            box-shadow: 0 4px 15px rgba(78, 84, 200, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-input-label::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .file-input-label:hover::before {
+            left: 100%;
+        }
+
+        .file-input-label:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(78, 84, 200, 0.4);
+        }
+
+        .file-input-label:active {
+            transform: translateY(-1px);
+        }
+
+        .file-name {
+            margin-top: 20px;
+            padding: 15px 25px;
+            background: rgba(78, 84, 200, 0.1);
+            border-radius: 15px;
+            font-size: 1rem;
+            color: var(--text-primary);
+            font-weight: 500;
+            border: 1px solid rgba(78, 84, 200, 0.2);
+            animation: fadeInScale 0.3s ease-out;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .actions {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 35px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            min-width: 160px;
+            justify-content: center;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: var(--success-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--warning-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(67, 233, 123, 0.4);
+        }
+
+        .btn:disabled {
+            background: linear-gradient(135deg, #a0aec0 0%, #cbd5e0 100%);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn:disabled::before {
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 40px 0;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .spinner-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(78, 84, 200, 0.1);
+            border-top: 4px solid #4e54c8;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        .spinner-glow {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(78, 84, 200, 0.2) 0%, transparent 70%);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            animation: pulse 1.5s infinite;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(78, 84, 200, 0.1);
+            border-radius: 4px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-gradient);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200px 0; }
+            100% { background-position: 200px 0; }
+        }
+
+        .results {
+            margin-top: 40px;
+            display: none;
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .results-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .results-icon {
+            font-size: 2.5rem;
+            color: #4e54c8;
+        }
+
+        .results h3 {
+            color: var(--text-primary);
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .alert {
+            padding: 20px 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            font-weight: 500;
+            font-size: 1.1rem;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .alert::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: currentColor;
+            opacity: 0.7;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #4e54c8;
+            margin-bottom: 10px;
+            animation: countUp 1s ease-out;
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .pie-chart {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            border-radius: 50%;
+            background: conic-gradient(#4facfe 0deg 0deg, #fa709a 0deg 360deg);
+            transition: all 0.3s ease;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .table-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 25px;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .table-scroll {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .table-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .table-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .table-scroll::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #4e54c8, #8f94fb);
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        table th {
+            background: rgba(78, 84, 200, 0.1);
+            color: var(--text-primary);
+            padding: 20px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        table td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        table tr:hover {
+            background: rgba(78, 84, 200, 0.02);
+            transform: scale(1.001);
+        }
+
+        .prediction-positive {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%) !important;
+            color: #155724 !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+        }
+
+        .prediction-negative {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%) !important;
+            color: #721c24 !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 15px;
+            padding: 20px 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border-left: 4px solid #4e54c8;
+            transform: translateX(400px);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            max-width: 350px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 30px 20px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                border-radius: 16px;
+            }
+            
+            .upload-section {
+                padding: 25px;
+            }
+            
+            .stat-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-elements">
+        <div class="floating-circle"></div>
+        <div class="floating-circle"></div>
+        <div class="floating-circle"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <div class="icon">🚀</div>
+                <h1>ETL Pipeline Platform</h1>
+                <p class="subtitle">Advanced Machine Learning Prediction System</p>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="fas fa-upload"></i> Data Upload
+                </h2>
+                <div class="upload-section" id="uploadSection">
+                    <div class="upload-content">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h3 style="margin-bottom: 15px; color: var(--text-primary); font-size: 1.4rem;">Upload Your Dataset</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 25px; font-size: 1.1rem;">
+                            Drag and drop your CSV file here or click to browse
+                        </p>
+                        
+                        <div class="file-input-container">
+                            <input type="file" id="fileInput" class="file-input" accept=".csv" />
+                            <label for="fileInput" class="file-input-label">
+                                <i class="fas fa-folder-open"></i>
+                                Choose CSV File
+                            </label>
+                        </div>
+                        <div id="fileName" class="file-name" style="display: none;"></div>
+                        
+                        <div class="actions">
+                            <button id="predictBtn" class="btn btn-primary" onclick="predictData()" disabled>
+                                <i class="fas fa-magic"></i>
+                                Generate Predictions
+                            </button>
+                            <button id="trainBtn" class="btn btn-secondary" onclick="trainModel()">
+                                <i class="fas fa-rocket"></i>
+                                Train New Model
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner-container">
+                    <div class="spinner-glow"></div>
+                    <div class="spinner"></div>
+                </div>
+                <p class="loading-text" id="loadingText">Processing your request...</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="results" id="results">
+                <div class="section">
+                    <div class="results-header">
+                        <div class="results-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Analysis Results</h3>
+                    </div>
+                    
+                    <div id="alertContainer"></div>
+                    <div id="statsContainer"></div>
+                    <div id="chartContainer"></div>
+                    <div id="tableContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notificationContent"></div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        let progressInterval = null;
+
+        // Initialize animations and interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add entrance animations to sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach((section, index) => {
+                section.style.animationDelay = `${index * 0.2}s`;
+            });
+        });
+
+        // Enhanced file input handling
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                selectedFile = file;
+                const fileName = document.getElementById('fileName');
+                fileName.innerHTML = `
+                    <i class="fas fa-file-csv" style="color: #4e54c8; margin-right: 10px;"></i>
+                    <strong>Selected:</strong> ${file.name} 
+                    <span style="color: var(--text-secondary);">(${(file.size / 1024).toFixed(1)} KB)</span>
+                `;
+                fileName.style.display = 'block';
+                document.getElementById('predictBtn').disabled = false;
+                
+                // Show notification
+                showNotification('File selected successfully!', 'success');
+            }
+        });
+
+        // Enhanced drag and drop
+        const uploadSection = document.getElementById('uploadSection');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadSection.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadSection.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadSection.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            uploadSection.classList.add('dragover');
+        }
+
+        function unhighlight(e) {
+            uploadSection.classList.remove('dragover');
+        }
+
+        uploadSection.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            if (files.length > 0 && files[0].name.endsWith('.csv')) {
+                selectedFile = files[0];
+                const fileName = document.getElementById('fileName');
+                fileName.innerHTML = `
+                    <i class="fas fa-file-csv" style="color: #4e54c8; margin-right: 10px;"></i>
+                    <strong>Selected:</strong> ${files[0].name} 
+                    <span style="color: var(--text-secondary);">(${(files[0].size / 1024).toFixed(1)} KB)</span>
+                `;
+                fileName.style.display = 'block';
+                document.getElementById('predictBtn').disabled = false;
+                
+                showNotification('File uploaded successfully!', 'success');
+            } else {
+                showNotification('Please upload a valid CSV file.', 'error');
+            }
+        }
+
+        // Enhanced loading with progress simulation
+        function showLoading(text) {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').classList.remove('show');
+            
+            // Simulate progress
+            let progress = 0;
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = '0%';
+            
+            progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                progressFill.style.width = progress + '%';
+            }, 200);
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+            }
+            document.getElementById('progressFill').style.width = '100%';
+            setTimeout(() => {
+                document.getElementById('progressFill').style.width = '0%';
+            }, 300);
+        }
+
+        // Enhanced alert system
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            const icon = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle';
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type}">
+                    <i class="${icon}" style="margin-right: 10px; font-size: 1.2rem;"></i>
+                    ${message}
+                </div>
+            `;
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const content = document.getElementById('notificationContent');
+            
+            const icons = {
+                success: 'fas fa-check-circle',
+                error: 'fas fa-exclamation-triangle',
+                info: 'fas fa-info-circle'
+            };
+            
+            const colors = {
+                success: '#28a745',
+                error: '#dc3545',
+                info: '#4e54c8'
+            };
+            
+            content.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="${icons[type]}" style="color: ${colors[type]}; font-size: 1.2rem;"></i>
+                    <span style="font-weight: 500;">${message}</span>
+                </div>
+            `;
+            
+            notification.style.borderLeftColor = colors[type];
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        // Enhanced predict function
+        async function predictData() {
+            if (!selectedFile) {
+                showNotification('Please select a CSV file first!', 'error');
+                return;
+            }
+
+            showLoading('Analyzing your data and generating predictions...');
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                hideLoading();
+
+                if (data.status === 'success') {
+                    showAlert(`🎉 ${data.message}`, 'success');
+                    displayResults(data);
+                    showNotification('Predictions completed successfully!', 'success');
+                } else {
+                    showAlert(`❌ Error: ${data.message}`, 'error');
+                    showNotification('Prediction failed. Please try again.', 'error');
+                }
+
+                document.getElementById('results').classList.add('show');
+            } catch (error) {
+                hideLoading();
+                showAlert(`🚫 Network error: ${error.message}`, 'error');
+                showNotification('Connection error. Please check your network.', 'error');
+                document.getElementById('results').classList.add('show');
+            }
+        }
+
+        // Enhanced train function
+        async function trainModel() {
+            showLoading('Training the machine learning model... This process may take several minutes.');
+
+            try {
+                const response = await fetch('/train', {
+                    method: 'GET'
+                });
+
+                const message = await response.text();
+                hideLoading();
+
+                if (response.ok) {
+                    showAlert(`🚀 ${message}`, 'success');
+                    showNotification('Model training completed!', 'success');
+                } else {
+                    showAlert(`❌ Training failed: ${message}`, 'error');
+                    showNotification('Training failed. Please try again.', 'error');
+                }
+
+                document.getElementById('results').classList.add('show');
+            } catch (error) {
+                hideLoading();
+                showAlert(`🚫 Network error: ${error.message}`, 'error');
+                showNotification('Connection error during training.', 'error');
+                document.getElementById('results').classList.add('show');
+            }
+        }
+
+        // Enhanced results display
+        function displayResults(data) {
+            const statsContainer = document.getElementById('statsContainer');
+            const chartContainer = document.getElementById('chartContainer');
+            const tableContainer = document.getElementById('tableContainer');
+
+            const predictions = data.predictions;
+            const positiveCount = predictions.filter(p => p.predicted_column === 1).length;
+            const negativeCount = predictions.filter(p => p.predicted_column === -1 || p.predicted_column === 0).length;
+            const positiveRate = (positiveCount / data.total_records) * 100;
+
+            // Enhanced stats cards
+            statsContainer.innerHTML = `
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-database"></i></div>
+                        <div class="stat-number">${data.total_records.toLocaleString()}</div>
+                        <div class="stat-label">Total Records</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-thumbs-up"></i></div>
+                        <div class="stat-number">${positiveCount.toLocaleString()}</div>
+                        <div class="stat-label">Positive Predictions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-thumbs-down"></i></div>
+                        <div class="stat-number">${negativeCount.toLocaleString()}</div>
+                        <div class="stat-label">Negative Predictions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-percentage"></i></div>
+                        <div class="stat-number">${positiveRate.toFixed(1)}%</div>
+                        <div class="stat-label">Success Rate</div>
+                    </div>
+                </div>
+            `;
+
+            // Enhanced pie chart
+            const positiveAngle = (positiveCount / data.total_records) * 360;
+            chartContainer.innerHTML = `
+                <div class="chart-container">
+                    <h4 class="chart-title">
+                        <i class="fas fa-chart-pie" style="margin-right: 10px; color: #4e54c8;"></i>
+                        Prediction Distribution
+                    </h4>
+                    <div class="pie-chart" style="background: conic-gradient(
+                        #4facfe 0deg ${positiveAngle}deg,
+                        #fa709a ${positiveAngle}deg 360deg
+                    );"></div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <div style="display: inline-flex; gap: 30px; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="width: 20px; height: 20px; background: #4facfe; border-radius: 50%;"></div>
+                                <span style="font-weight: 500;">Positive (${positiveCount})</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="width: 20px; height: 20px; background: #fa709a; border-radius: 50%;"></div>
+                                <span style="font-weight: 500;">Negative (${negativeCount})</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Enhanced table
+            if (predictions.length > 0) {
+                const columns = Object.keys(predictions[0]);
+                let tableHTML = `
+                    <div class="table-container">
+                        <div class="table-header">
+                            <i class="fas fa-table" style="margin-right: 10px;"></i>
+                            Prediction Results
+                        </div>
+                        <div class="table-scroll">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        ${columns.map(col => `<th>${col.replace('_', ' ').toUpperCase()}</th>`).join('')}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${predictions.slice(0, 100).map(row => `
+                                        <tr>
+                                            ${columns.map(col => `
+                                                <td class="${col === 'predicted_column' ? (row[col] === 1 ? 'prediction-positive' : 'prediction-negative') : ''}">
+                                                    ${col === 'predicted_column' ? 
+                                                        (row[col] === 1 ? '<i class="fas fa-check"></i> Positive' : '<i class="fas fa-times"></i> Negative') : 
+                                                        row[col]
+                                                    }
+                                                </td>
+                                            `).join('')}
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+
+                if (predictions.length > 100) {
+                    tableHTML += `
+                        <div style="text-align: center; margin-top: 20px; padding: 15px; background: rgba(78, 84, 200, 0.1); border-radius: 10px;">
+                            <i class="fas fa-info-circle" style="color: #4e54c8; margin-right: 8px;"></i>
+                            <span style="color: var(--text-primary); font-weight: 500;">
+                                Showing first 100 rows of ${predictions.length.toLocaleString()} total records
+                            </span>
+                        </div>
+                    `;
+                }
+
+                tableContainer.innerHTML = tableHTML;
+            }
+
+            // Animate stats numbers
+            animateNumbers();
+        }
+
+        // Number animation
+        function animateNumbers() {
+            const statNumbers = document.querySelectorAll('.stat-number');
+            statNumbers.forEach(element => {
+                const target = parseInt(element.textContent.replace(/[^\d]/g, ''));
+                let current = 0;
+                const increment = target / 50;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    element.textContent = element.textContent.includes('%') ? 
+                        current.toFixed(1) + '%' : 
+                        Math.floor(current).toLocaleString();
+                }, 20);
+            });
+        }
+    </script>
+</body>
+</html>

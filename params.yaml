@@ -1,0 +1,34 @@
+KNN:
+  n_neighbors: [2, 50]
+
+CART:
+  max_depth: [1, 20]
+  min_samples_split: [2, 30]
+  criterion: ["gini", "entropy", "log_loss"]
+  splittter: ["best", "random"]
+  max_features: ["sqrt", "log2", None]
+
+RandomForest:
+  max_depth: [8, 15, None]
+  max_features: [5, 7, "auto"]
+  min_samples_split: [15, 20]
+  n_estimators: [200, 300]
+
+XgBoost:
+  learning_rate: [0.01, 0.001]
+  max_depth: [5, 8, 12, 20, 30]
+  n_estimators: [100, 200, 300, 500]
+  colsample_bytree: [0.3, 0.4, 0.5, 0.8, 1]
+
+LightGBM:
+  learning_rate: [0.01, 0.05, 0.1, 0.3]
+  n_estimators: [100, 300, 500, 1000]
+  colsample_bytree: [0.6, 0.7, 0.8, 1]
+  max_depth: [3, 5, 7, -1]
+  num_leaves: [15, 31, 63, 127]
+  min_child_samples: [10, 20, 30]
+  subsample: [0.6, 0.8, 1]
+
+AdaBoost:
+  n_estimators: [100, 200, 300, 500]
+  learning_rate: [0.01, 0.001]
