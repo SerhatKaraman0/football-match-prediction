@@ -22,8 +22,8 @@ TEST_FILE_NAME  = "test.csv"
 ##################################################################################
 #TODO: ELO and MATCH Data update intervals will be changed with their data type
 
-ELO_DATA_RESOURCE_UR            : str  = "https://raw.githubusercontent.com/xgabora/Club-Football-Match-Data-2000-2025/main/data/EloRatings.csv"
-MATCH_DATA_RESOURCE_URL         : str  = "https://raw.githubusercontent.com/xgabora/Club-Football-Match-Data-2000-2025/main/data/Matches.csv"
+ELO_DATA_RESOURCE_UR            : str  = "https://raw.githubusercontent.com/xgabora/Club-Football-Match-Data-2000-2025/refs/heads/main/data/Matches.csv"
+MATCH_DATA_RESOURCE_URL         : str  = "https://raw.githubusercontent.com/xgabora/Club-Football-Match-Data-2000-2025/refs/heads/main/data/EloRatings.csv"
 ELO_DATA_UPDATE_INTERVAL        : str  = ""
 MATCH_DATA_UPDATE_INTERVAL      : str  = ""
 DATA_COLLECTION_DIR_NAME        : str  = "data"
